@@ -1,0 +1,3 @@
+COMPONENT=RoutAppC
+include $(MAKERULES)
+

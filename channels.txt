@@ -1,0 +1,27 @@
+Announcement		# Announcement messages
+Content			# Content messages
+Round			# Round announcements
+#Rout			# Problems with routing
+#RoutDetail		# Low lever rout information
+#Event			# Reports on all events
+Error			# Error reports
+Sink			# Sink reports
+Battery			# When battery runs out
+#BatteryUse		# Battery use
+#Debug
+########## /lib/tossim
+#Acks			# Not much, just that acks should be sent
+#AM			# Received and snooped messages are reported
+#Binary			# BinaryInterferenceModel - seems not to be turned on
+#CpmModelC		# Reports noise and message losses
+#Packet			
+#PlatformC		
+#Queue			# Event queue
+#Scheduler
+#SimMainP
+#SimMoteP		# Startup times
+#Tossim			# The Tossim core
+#TossimPacketModelC	# Low level simulation details of message handling
+#Gain			# Reported noise and message losses, retired it seems
+#########
+#AMQueue			# Queueing of messages
