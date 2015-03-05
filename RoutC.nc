@@ -48,6 +48,9 @@ implementation
   /* Battery level */
   uint16_t battery = 0;
 
+  /* Is the node a cluster head */
+  bool isClusterHead = FALSE;
+
   /* ==================== HELPER FUNCTIONS ==================== */
 
   /* Returns a random number between 0 and n-1 (both inclusive)	*/
