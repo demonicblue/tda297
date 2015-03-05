@@ -98,6 +98,12 @@ implementation
   void startnode() {
     battery = BATTERYSTART;
     call PeriodTimer.startPeriodic(PERIOD);
+    if (random(10) < 3) {
+      isClusterHead = TRUE;
+    } else {
+      isClusterHead = FALSE;
+    }
+
   }
 
   void stopnode() {
@@ -365,13 +371,18 @@ implementation
     switch(roundcounter % ROUNDS) {
     case ROUND_ANNOUNCEMENT: /* Announcement time */
       if(isSink()) {
-	dbg("Round","========== Round %d ==========\n",roundcounter/2);
+        dbg("Round","========== Round %d ==========\n",roundcounter/2);
       }
       sendAnnounce();
       break;
     case ROUND_CONTENT: /* Message time */
       if(!isSink()) {
-	sendContent();
+        sendContent();
+      }
+      break;
+    case ROUND_CLUSTER: /* Cluster head sends */
+      if(!isSink()) {
+        sendContent();
       }
       break;
     default:
