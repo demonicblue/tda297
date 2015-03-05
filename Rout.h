@@ -8,7 +8,7 @@
 #define COLUMNS 4
 
 /* Number of different rounds in protocol and the rounds themselves */
-#define ROUNDS 2
+#define ROUNDS 3
 #define ROUND_ANNOUNCEMENT 0
 #define ROUND_CONTENT 1
 #define ROUND_CLUSTER 2

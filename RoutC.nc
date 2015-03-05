@@ -51,6 +51,9 @@ implementation
   /* Is the node a cluster head */
   bool isClusterHead = FALSE;
 
+  /* Collection of content */
+  uint16_t summarizedContent = 0;
+
   /* ==================== HELPER FUNCTIONS ==================== */
 
   /* Returns a random number between 0 and n-1 (both inclusive)	*/
@@ -270,7 +273,11 @@ implementation
    */
   void sendAnnounce() {
     message->from = TOS_NODE_ID;       /* The ID of the node */
-    message->type = TYPE_ANNOUNCEMENT;
+
+    if(isClusterHead)
+      mess->type = TYPE_ANNOUNCEMENT_HEAD;
+    else
+      message->type = TYPE_ANNOUNCEMENT;
     routMessage();
   }
   
@@ -336,12 +343,16 @@ implementation
 
 
   void contentReceive(rout_msg_t *mess) {
-    if(call RouterQueue.enqueue(*mess) == SUCCESS) {
-      dbg("RoutDetail", "Rout: Message from %d enqueued\n", mess-> from);
+    if(isClusterHead) {
+      summarizedContent++;
     } else {
-      dbgMessageLine("Rout", "Rout: queue full, message dropped:", mess);
+      if(call RouterQueue.enqueue(*mess) == SUCCESS) {
+        dbg("RoutDetail", "Rout: Message from %d enqueued\n", mess-> from);
+      } else {
+        dbgMessageLine("Rout", "Rout: queue full, message dropped:", mess);
+      }
+      rout();
     }
-    rout();
   }
 
   /*
@@ -382,7 +393,7 @@ implementation
       break;
     case ROUND_CLUSTER: /* Cluster head sends */
       if(!isSink()) {
-        sendContent();
+        sendSummarized();
       }
       break;
     default:
@@ -401,6 +412,10 @@ implementation
     switch(mess->type) {
     case TYPE_ANNOUNCEMENT:
       dbgMessageLine("Announcement","Announcement: Received ",mess);
+      announceReceive(mess);
+      break;
+    case TYPE_ANNOUNCEMENT_HEAD:
+      dbgMessageLine("Announcement","Announcement_head: Received ",mess);
       announceReceive(mess);
       break;
     case TYPE_CONTENT:
