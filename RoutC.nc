@@ -275,7 +275,7 @@ implementation
     message->from = TOS_NODE_ID;       /* The ID of the node */
 
     if(isClusterHead)
-      mess->type = TYPE_ANNOUNCEMENT_HEAD;
+      message->type = TYPE_ANNOUNCEMENT_HEAD;
     else
       message->type = TYPE_ANNOUNCEMENT;
     routMessage();
@@ -293,23 +293,25 @@ implementation
       router = -1;
     }
 
-    /* Here is the Basic routing algorithm. You will do a better one below. */
-    if(BASICROUTER) {
-      int16_t myd = distance(TOS_NODE_ID);
-      int16_t d   = distance(mess->from);
-      if(router == -1 && myd > d) {
-	router = mess->from;
-      }
-    } 
-
-    /* Here is where you take a better decision. 
-     * Set BASICROUTER to 0 and your algorithm runs istead.
-     * You have to change in other places as well of course.
-     * It's nice if you can switch back and forth by setting
-     * BASICROUTER, but it's not a requirement.
-     */
-    else {
+    /* Run this if cluster head */
+    if(isClusterHead) {
+      int16_t myDistance   =  distance(TOS_NODE_ID);
+      int16_t annDistance  =  distance(mess->from);
       
+      if(router == -1 && myDistance > annDistance) {
+        router = mess->from;
+      } else if(router != -1)  {
+        int16_t routerDistance    = distance(router);
+        int16_t currentCost   = batteryRequiredForSend(router);
+        int16_t annCost     = batteryRequiredForSend(mess->from);
+        //if the distance of the current route is less than or equal to the current
+        //route and the battery cost is less than or or equal, then chose the new
+        // route.
+        if( routerDistance >= annDistance && annCost <= currentCost){
+          router = mess->from;
+        }
+      }
+    } else {
     	int16_t myDistance   = 	distance(TOS_NODE_ID);
     	int16_t annDistance  = 	distance(mess->from);
     	
@@ -322,9 +324,13 @@ implementation
     		//if the distance of the current route is less than or equal to the current
     		//route and the battery cost is less than or or equal, then chose the new
     		// route.
-    		if( routerDistance >= annDistance /*&& annCost <= currentCost*/){
-    			router = mess->from;
+    		if( routerDistance >= annDistance && annCost <= currentCost){
+          router = mess->from;
     		}
+        /* If there exist a head that is close, it will always be chosen if if the battery is high */
+        if(routerDiststance >= annDistance && mess->type == TYPE_ANNOUNCEMENT_HEAD) {
+          router = mess->from;
+        }
       }
     }
   }

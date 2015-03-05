@@ -16,6 +16,7 @@
 /* Message type identifiers */
 #define TYPE_ANNOUNCEMENT 11
 #define TYPE_CONTENT 12
+#define TYPE_ANNOUNCEMENT_HEAD 13
 
 /* Maximum quadratic distance radio can reach */
 #define MAXDISTANCE 5
