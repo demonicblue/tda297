@@ -11,6 +11,7 @@
 #define ROUNDS 2
 #define ROUND_ANNOUNCEMENT 0
 #define ROUND_CONTENT 1
+#define ROUND_CLUSTER 2
 
 /* Message type identifiers */
 #define TYPE_ANNOUNCEMENT 11
