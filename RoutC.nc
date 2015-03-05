@@ -325,7 +325,7 @@ implementation
     		if( routerDistance >= annDistance /*&& annCost <= currentCost*/){
     			router = mess->from;
     		}
-      	}
+      }
     }
   }
 
@@ -337,6 +337,17 @@ implementation
     message->type    = TYPE_CONTENT;
     message->content = 1;
     message->seq     = sequence++;
+    routMessage();
+    switchrouter = TRUE; /* Ready for another router round */
+  }
+
+  void sendSummarized() {
+    static uint32_t sequence = 0; //this is iniitialized in sendContent() as well and set to 0. weird?
+    message->from    = TOS_NODE_ID;       /* The ID of the node */
+    message->type    = TYPE_CONTENT;
+    message->content = summarizedContent;
+    message->seq     = sequence++;
+    summarizedContent = 0; //reset when summarized content has been sent.
     routMessage();
     switchrouter = TRUE; /* Ready for another router round */
   }
