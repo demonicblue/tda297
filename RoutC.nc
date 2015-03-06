@@ -298,58 +298,6 @@ implementation
     }
 
     /* Run this if cluster head */
-    if(isClusterHead) {
-      int16_t myDistance   =  distance(TOS_NODE_ID);
-      int16_t annDistance  =  distance(mess->from);
-      
-      if(router == -1 && myDistance > annDistance) {
-        router = mess->from;
-      } else if(router != -1)  {
-        int16_t routerDistance    = distance(router);
-        int16_t currentCost   = batteryRequiredForSend(router);
-        int16_t annCost     = batteryRequiredForSend(mess->from);
-        //if the distance of the current route is less than or equal to the current
-        //route and the battery cost is less than or or equal, then chose the new
-        // route.
-        if(routerDistance >= annDistance && annCost <= currentCost){
-          router = mess->from;
-        }
-      }
-    } else {
-
-      /* Chooses the closest cluster head as it's cluster head */
-      if(mess->type == TYPE_ANNOUNCEMENT_HEAD) {
-        if(myClusterHead = -1) {
-          myClusterHead = mess->from;
-        } 
-        int16_t annNode     = distanceBetween(TOS_NODE_ID,   mess->from);
-        int16_t currentNode = distanceBetween(myClusterHead, mess->from);
-        if (annNode <= currentNode) {
-          myClusterHead = mess->from;
-        }
-      }
-      int16_t myDistance   = 	distance(TOS_NODE_ID);
-      int16_t annDistance  = 	distance(mess->from);
-  	
-    	if(router == -1 && myDistance > annDistance) {
-    		router = mess->from;
-    	} else if(router != -1)  {
-    		int16_t routerDistance		=	distance(router);
-    		int16_t currentCost		=	batteryRequiredForSend(router);
-    		int16_t annCost			=	batteryRequiredForSend(mess->from);
-    		//if the distance of the current route is less than or equal to the current
-    		//route and the battery cost is less than or or equal, then chose the new
-    		// route.
-    		if( routerDistance >= annDistance && annCost <= currentCost){
-          router = mess->from;
-    		}
-        /* If there exist a head that is close, it will always be chosen if if the battery is high */
-        if(routerDistance >= annDistance && mess->type == TYPE_ANNOUNCEMENT_HEAD) {
-          router = mess->from;
-          dbg("Cluster", "Cluster: Choose %d as my cluster head\n", mess->from);
-        }
-      }
-    }
   }
 
   /* ==================== CONTENT ==================== */
