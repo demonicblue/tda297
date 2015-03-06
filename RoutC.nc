@@ -297,6 +297,23 @@ implementation
       router = -1;
     }
 
+    if(isClusterHead) {
+      int16_t myDistance = distance(TOS_NODE_ID);
+      int16_t annDistance = distance(mess->from);
+
+      if(router == -1 && myDistance > annDistance) {
+        router = mess->from;
+      } else if(router != -1) {
+        int16_t routerDistance = distance(router);
+        int16_t currentCost = batteryRequiredForSend(router);
+        int16_t annCost = batteryRequiredForSend(mess->from);
+
+        if(routerDistance >= annDistance && annCost <= currentCost) {
+          router = mess->from;
+        }
+      }
+    }
+
     /* Run this if cluster head */
   }
 
