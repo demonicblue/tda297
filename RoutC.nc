@@ -312,6 +312,19 @@ implementation
           router = mess->from;
         }
       }
+    } else {
+
+      if(mess->type == TYPE_ANNOUNCEMENT_HEAD) {
+        if(myClusterHead = -1) {
+          myClusterHead = mess->from;
+        }
+        int16_t annNode = distanceBetween(TOS_NODE_ID, mess->from);
+        int16_t currentNode = distanceBetween(myClusterHead, mess->from);
+        if(annNode <= currentNode) {
+          myClusterHead = mess->from;
+        }
+      }
+      
     }
 
     /* Run this if cluster head */
