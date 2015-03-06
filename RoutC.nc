@@ -54,6 +54,9 @@ implementation
   /* Collection of content */
   uint16_t summarizedContent = 0;
 
+  /* Leader of the cluster group */
+  int16_t myClusterHead = -1;
+
   /* ==================== HELPER FUNCTIONS ==================== */
 
   /* Returns a random number between 0 and n-1 (both inclusive)	*/
@@ -307,29 +310,20 @@ implementation
         //if the distance of the current route is less than or equal to the current
         //route and the battery cost is less than or or equal, then chose the new
         // route.
-        if( routerDistance >= annDistance && annCost <= currentCost){
+        if(routerDistance >= annDistance && annCost <= currentCost){
           router = mess->from;
         }
       }
     } else {
-    	int16_t myDistance   = 	distance(TOS_NODE_ID);
-    	int16_t annDistance  = 	distance(mess->from);
-    	
-    	if(router == -1 && myDistance > annDistance) {
-    		router = mess->from;
-    	} else if(router != -1)  {
-    		int16_t routerDistance		=	distance(router);
-    		int16_t currentCost		=	batteryRequiredForSend(router);
-    		int16_t annCost			=	batteryRequiredForSend(mess->from);
-    		//if the distance of the current route is less than or equal to the current
-    		//route and the battery cost is less than or or equal, then chose the new
-    		// route.
-    		if( routerDistance >= annDistance && annCost <= currentCost){
-          router = mess->from;
-    		}
-        /* If there exist a head that is close, it will always be chosen if if the battery is high */
-        if(routerDiststance >= annDistance && mess->type == TYPE_ANNOUNCEMENT_HEAD) {
-          router = mess->from;
+      /* Chooses the closest cluster head as it's cluster head */
+      if(mess->type == TYPE_ANNOUNCEMENT_HEAD)
+        if(myClusterHead = -1) {
+          myClusterHead = mess->from;
+        } 
+        int16_t annNode     = distanceBetween(TOS_NODE_ID,   mess->from);
+        int16_t currentNode = distanceBetween(myClusterHead, mess->from);
+        if (annNode <= currentNode) {
+          myClusterHead = mess->from;
         }
       }
     }
