@@ -103,7 +103,7 @@ implementation
     call PeriodTimer.startPeriodic(PERIOD);
     if (random(10) < 3) {
       isClusterHead = TRUE;
-      dbg("Cluster", "I am a head\n");
+      dbg("Cluster", "Cluster: I am a head\n");
     } else {
       isClusterHead = FALSE;
     }
@@ -331,7 +331,7 @@ implementation
         /* If there exist a head that is close, it will always be chosen if if the battery is high */
         if(routerDistance >= annDistance && mess->type == TYPE_ANNOUNCEMENT_HEAD) {
           router = mess->from;
-          dbg("Cluster", "Choose %d as my cluster head\n", mess->from);
+          dbg("Cluster", "Cluster: Choose %d as my cluster head\n", mess->from);
         }
       }
     }

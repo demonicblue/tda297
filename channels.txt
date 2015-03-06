@@ -9,6 +9,7 @@ Sink			# Sink reports
 Battery			# When battery runs out
 #BatteryUse		# Battery use
 #Debug
+Cluster
 ########## /lib/tossim
 #Acks			# Not much, just that acks should be sent
 #AM			# Received and snooped messages are reported
