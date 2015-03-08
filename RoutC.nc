@@ -96,6 +96,15 @@ implementation
     }
   }
 
+  void selectHeads() {
+    if (random(100) < 35) {
+      isClusterHead = TRUE;
+      dbg("Cluster", "Cluster: I am a head\n");
+    } else {
+      isClusterHead = FALSE;
+    }
+  }
+
 #define dbgMessageLine(channel,str,mess) dbg(channel,"%s{%d, %s, %d}\n", str, mess->from, messageTypeString(mess->type),mess->seq);
 #define dbgMessageLineInt(channel,str1,mess,str2,num) dbg(channel,"%s{%d, %s, %d}%s%d\n", str1, mess->from, messageTypeString(mess->type),mess->seq,str2,num);
 
@@ -104,12 +113,7 @@ implementation
   void startnode() {
     battery = BATTERYSTART;
     call PeriodTimer.startPeriodic(PERIOD);
-    if (random(10) < 3) {
-      isClusterHead = TRUE;
-      dbg("Cluster", "Cluster: I am a head\n");
-    } else {
-      isClusterHead = FALSE;
-    }
+    selectHeads();
 
   }
 
@@ -271,7 +275,6 @@ implementation
         } else {
           receiver = router;
           send = TRUE;
-          dbg("Cluster", "Cluster: Head sent content to %d.\n", receiver);
         }
         break;
       default:
@@ -307,6 +310,8 @@ implementation
    */
   void sendAnnounce() {
     message->from = TOS_NODE_ID;       /* The ID of the node */
+    if(battery <= MAXDISTANCE)
+      return;
 
     if(isClusterHead)
       message->type = TYPE_ANNOUNCEMENT_HEAD;
@@ -410,7 +415,7 @@ implementation
   void contentReceive(rout_msg_t *mess) {
     if(isClusterHead) {
       summarizedContent++;
-      dbg("Cluster", "Cluster: Head got content. Sum: %d\n", summarizedContent);
+      //dbg("Cluster", "Cluster: Head got content. Sum: %d\n", summarizedContent);
     } else {
       if(call RouterQueue.enqueue(*mess) == SUCCESS) {
         dbg("RoutDetail", "Rout: Message from %d enqueued\n", mess-> from);
@@ -448,8 +453,10 @@ implementation
     switch(roundcounter % ROUNDS) {
     case ROUND_ANNOUNCEMENT: /* Announcement time */
       if(isSink()) {
-        dbg("Round","========== Round %d ==========\n",roundcounter/2);
+        dbg("Round","========== Round %d ==========\n",roundcounter/ROUNDS);
       }
+      if((roundcounter/3)%4 == 0)
+        selectHeads();
       sendAnnounce();
       break;
     case ROUND_CONTENT: /* Message time */
