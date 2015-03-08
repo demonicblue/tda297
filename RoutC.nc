@@ -382,6 +382,11 @@ implementation
   
   void sendContent() {
     static uint32_t sequence = 0;
+
+    if(isClusterHead) {
+      summarizedContent++;
+      return;
+    }
     message->from    = TOS_NODE_ID;       /* The ID of the node */
     message->type    = TYPE_CONTENT;
     message->content = 1;
@@ -453,7 +458,7 @@ implementation
       }
       break;
     case ROUND_CLUSTER: /* Cluster head sends */
-      if(!isSink()) {
+      if(!isSink() && isClusterHead) {
         sendSummarized();
       }
       break;
