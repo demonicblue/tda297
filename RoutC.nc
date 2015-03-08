@@ -313,9 +313,8 @@ implementation
       router = -1;
     }
 
-    /* Run this if cluster head */
-    if(isClusterHead) {
-      myDistance   =  distance(TOS_NODE_ID);
+
+    myDistance   =  distance(TOS_NODE_ID);
       annDistance  =  distance(mess->from);
       
       if(router == -1 && myDistance > annDistance) {
@@ -331,8 +330,10 @@ implementation
           router = mess->from;
         }
       }
-    } else {
 
+    /* Run this if normal node, ie not clust head */
+    if(!isClusterHead) {
+    
       /* Chooses the closest cluster head as it's cluster head */
       if(mess->type == TYPE_ANNOUNCEMENT_HEAD) {
         if(myClusterHead == -1) {
@@ -346,32 +347,9 @@ implementation
         }
       }
 
-
-
-      myDistance   =  distance(TOS_NODE_ID);
-      annDistance  =  distance(mess->from);
-    
-      if(router == -1 && myDistance > annDistance) {
-        router = mess->from;
-      } else if(router != -1)  {
-        routerDistance    = distance(router);
-        currentCost   = batteryRequiredForSend(router);
-        annCost     = batteryRequiredForSend(mess->from);
-        //if the distance of the current route is less than or equal to the current
-        //route and the battery cost is less than or or equal, then chose the new
-        // route.
-        if( routerDistance >= annDistance && annCost <= currentCost){
-          router = mess->from;
-        }
-        /* If there exist a head that is close, it will always be chosen if if the battery is high */
-        if(routerDistance >= annDistance && mess->type == TYPE_ANNOUNCEMENT_HEAD) {
-          router = mess->from;
-          dbg("Cluster", "Cluster: Choose %d as my cluster head\n", mess->from);
-        }
-      }
       /* The router function choses wwhich one to use depending on the message was sent from head or */
       routerFirst = myClusterHead;
-
+      /* Where to send if the message had already gone through a cluster head */
       router = router;
     }
   }
