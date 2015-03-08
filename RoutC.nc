@@ -319,7 +319,7 @@ implementation
 
       /* Chooses the closest cluster head as it's cluster head */
       if(mess->type == TYPE_ANNOUNCEMENT_HEAD) {
-        if(myClusterHead = -1) {
+        if(myClusterHead == -1) {
           myClusterHead = mess->from;
         } 
         int16_t annNode     = distanceBetween(TOS_NODE_ID,   mess->from);
@@ -328,6 +328,9 @@ implementation
           myClusterHead = mess->from;
         }
       }
+
+
+
       int16_t myDistance   = 	distance(TOS_NODE_ID);
       int16_t annDistance  = 	distance(mess->from);
   	
@@ -349,6 +352,10 @@ implementation
           dbg("Cluster", "Cluster: Choose %d as my cluster head\n", mess->from);
         }
       }
+      /* The router function choses wwhich one to use depending on the message was sent from head or */
+      routerFirst = myClusterHead;
+
+      router = router;
     }
   }
 
@@ -367,7 +374,7 @@ implementation
   void sendSummarized() {
     static uint32_t sequence = 0; //this is iniitialized in sendContent() as well and set to 0. weird?
     message->from    = TOS_NODE_ID;       /* The ID of the node */
-    message->type    = TYPE_CONTENT;
+    message->type    = TYPE_CONTENT_HEAD; /* Changed type so we know it is a summarized message from a head */
     message->content = summarizedContent;
     message->seq     = sequence++;
     summarizedContent = 0; //reset when summarized content has been sent.
