@@ -96,6 +96,7 @@ implementation
     }
   }
 
+  /* Select cluster heads in rotational order based on node id to achieve a more even distribution */
   void selectHeads(uint32_t roundcounter) {
     /*if (random(100) < 50) {
       isClusterHead = TRUE;
@@ -246,9 +247,6 @@ implementation
       dbg("RoutDetail", "Rout: Message will be sent.\n");
       switch(type) {
       case TYPE_ANNOUNCEMENT:
-        receiver = AM_BROADCAST_ADDR;
-        send = TRUE;
-        break;
       case TYPE_ANNOUNCEMENT_HEAD:
         receiver = AM_BROADCAST_ADDR;
         send = TRUE;
@@ -317,10 +315,10 @@ implementation
    */
   void sendAnnounce() {
     message->from = TOS_NODE_ID;       /* The ID of the node */
-    if(battery <= MAXDISTANCE)
+    if(battery <= MAXDISTANCE)         /* Don't announce if battery is low */
       return;
 
-    if(isClusterHead && !isSink())
+    if(isClusterHead)                  /* Announce as cluster head */
       message->type = TYPE_ANNOUNCEMENT_HEAD;
     else
       message->type = TYPE_ANNOUNCEMENT;
@@ -353,9 +351,11 @@ implementation
       myDistance   =  distance(TOS_NODE_ID);
       annDistance  =  distance(mess->from);
       
-      if(router == -1 && myDistance > annDistance) {
+      if(router == -1 && myDistance > annDistance) /* Choose first node which is closer to the sink than us */
+      {
         router = mess->from;
-      } else if(router != -1)  {
+      } else if(router != -1)  /* If we have a router */
+      {
         routerDistance    = distance(router);
         currentCost   = batteryRequiredForSend(router);
         annCost     = batteryRequiredForSend(mess->from);
@@ -382,11 +382,6 @@ implementation
           myClusterHead = mess->from;
         }
       }
-
-      /* The router function choses wwhich one to use depending on the message was sent from head or */
-      //routerFirst = myClusterHead;
-      /* Where to send if the message had already gone through a cluster head */
-      //router = router;
     }
   }
 
@@ -395,7 +390,7 @@ implementation
   void sendContent() {
     static uint32_t sequence = 0;
 
-    if(isClusterHead) {
+    if(isClusterHead) { /* Cluster head collects sensor data instead of sending it */
       summarizedContent++;
       return;
     }
@@ -407,6 +402,7 @@ implementation
     switchrouter = TRUE; /* Ready for another router round */
   }
 
+  /* Cluster heads forwards summarized data */
   void sendSummarized() {
     static uint32_t sequence = 0; //this is iniitialized in sendContent() as well and set to 0. weird?
     message->from    = TOS_NODE_ID;       /* The ID of the node */
@@ -420,9 +416,8 @@ implementation
 
 
   void contentReceive(rout_msg_t *mess) {
-    if(isClusterHead) {
+    if(isClusterHead) { /* Cluster head collects data ans summarizes instead of immedietly forwarding */
       summarizedContent++;
-      //dbg("Cluster", "Cluster: Head got content. Sum: %d\n", summarizedContent);
     } else {
       if(call RouterQueue.enqueue(*mess) == SUCCESS) {
         dbg("RoutDetail", "Rout: Message from %d enqueued\n", mess-> from);
@@ -462,7 +457,7 @@ implementation
       if(isSink()) {
         dbg("Round","========== Round %d ==========\n",roundcounter/ROUNDS);
       }
-      if((roundcounter/ROUNDS)%2 == 0)
+      if((roundcounter/ROUNDS)%2 == 0) /* Reselect cluster heads every other round */
         selectHeads(roundcounter);
       sendAnnounce();
       break;
@@ -471,7 +466,7 @@ implementation
         sendContent();
       }
       break;
-    case ROUND_CLUSTER: /* Cluster head sends */
+    case ROUND_CLUSTER: /* Cluster head sends data */
       if(!isSink() && isClusterHead) {
         sendSummarized();
       }
