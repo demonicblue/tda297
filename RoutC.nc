@@ -200,13 +200,16 @@ implementation
       
       switch(message->type) {
       case TYPE_ANNOUNCEMENT:
-  dbgMessageLine("Announcement","Announcement: Sending message ",message);
-  break;
+        dbgMessageLine("Announcement","Announcement: Sending message ",message);
+        break;
+      case TYPE_ANNOUNCEMENT_HEAD:
+        dbgMessageLine("Announcement","Announcement: Sending message ",message);
+        break;
       case TYPE_CONTENT:
-  dbgMessageLineInt("Content","Content: Sending message ",message," via ",receiver);
-  break;
+        dbgMessageLineInt("Content","Content: Sending message ",message," via ",receiver);
+         break;
       default:
-    dbg("Error","ERROR: Unknown message type");
+        dbg("Error","ERROR: Unknown message type");
       }
     } else {
     dbg("Error","ERROR: MessageSend failed");
@@ -229,28 +232,32 @@ implementation
       dbg("RoutDetail", "Rout: Message will be sent.\n");
       switch(type) {
       case TYPE_ANNOUNCEMENT:
-  receiver = AM_BROADCAST_ADDR;
-  send = TRUE;
-  break;
+        receiver = AM_BROADCAST_ADDR;
+        send = TRUE;
+        break;
+      case TYPE_ANNOUNCEMENT_HEAD:
+        receiver = AM_BROADCAST_ADDR;
+        send = TRUE;
+        break;
       case TYPE_CONTENT:
-  if(router == -1) {
-    dbg("RoutDetail", "Rout: No router.\n");
-    if(!routerlessreported) {
-      dbg("Rout", "Rout: No router to send to\n");
-      routerlessreported = TRUE;
-    }
-  } else {
-    receiver = router;
-    send = TRUE;
-  }
-  break;
+        if(router == -1) {
+          dbg("RoutDetail", "Rout: No router.\n");
+          if(!routerlessreported) {
+            dbg("Rout", "Rout: No router to send to\n");
+            routerlessreported = TRUE;
+          }
+        } else {
+          receiver = router;
+          send = TRUE;
+        }
+        break;
       default:
-  dbg("Error", "ERROR: Unknown message type %d\n", type);
-      }
-      if(send) {
-  *message = call RouterQueue.dequeue();
-  sendMessage(receiver);
-      }
+        dbg("Error", "ERROR: Unknown message type %d\n", type);
+    }
+    if(send) {
+      *message = call RouterQueue.dequeue();
+      sendMessage(receiver);
+    }
     }
   }
 
@@ -330,6 +337,7 @@ implementation
       if(mess->type == TYPE_ANNOUNCEMENT_HEAD) {
         if(myClusterHead == -1) {
           myClusterHead = mess->from;
+          dbg("Cluster", "Cluster: Chose %d as my head\n", myClusterHead);
         } 
         annNode     = distanceBetween(TOS_NODE_ID,   mess->from);
         currentNode = distanceBetween(myClusterHead, mess->from);
