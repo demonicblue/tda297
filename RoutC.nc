@@ -271,6 +271,7 @@ implementation
         } else {
           receiver = router;
           send = TRUE;
+          dbg("Cluster", "Cluster: Head sent content to %d.\n", receiver);
         }
         break;
       default:
@@ -404,6 +405,7 @@ implementation
   void contentReceive(rout_msg_t *mess) {
     if(isClusterHead) {
       summarizedContent++;
+      dbg("Cluster", "Cluster: Head got content. Sum: %d\n", summarizedContent);
     } else {
       if(call RouterQueue.enqueue(*mess) == SUCCESS) {
         dbg("RoutDetail", "Rout: Message from %d enqueued\n", mess-> from);
@@ -478,6 +480,7 @@ implementation
       announceReceive(mess);
       break;
     case TYPE_CONTENT:
+    case TYPE_CONTENT_HEAD:
       dbgMessageLine("Content","Content: Received ",mess);
       if(isSink()) {
   contentCollect(mess);
