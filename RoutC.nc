@@ -207,7 +207,10 @@ implementation
         break;
       case TYPE_CONTENT:
         dbgMessageLineInt("Content","Content: Sending message ",message," via ",receiver);
-         break;
+        break;
+      case TYPE_CONTENT_HEAD:
+        dbgMessageLineInt("Content","Content: Sending message ",message," via ",receiver);
+        break;
       default:
         dbg("Error","ERROR: Unknown message type");
       }
@@ -239,7 +242,26 @@ implementation
         receiver = AM_BROADCAST_ADDR;
         send = TRUE;
         break;
+      /* When a normal node sends a message that hasnt gone through a cluster head, it is TYPE_CONTET */  
       case TYPE_CONTENT:
+        if(router == -1) {
+          dbg("RoutDetail", "Rout: No router.\n");
+          if(!routerlessreported) {
+            dbg("Rout", "Rout: No router to send to\n");
+            routerlessreported = TRUE;
+          }
+        } else {
+          /* Routes to closest cluster head, if there is none, use normal route */
+          if(myClusterHead == -1) {
+            receiver = router;
+          } else {
+            receiver = myClusterHead;
+          }
+          send = TRUE;
+        }
+        break;
+      /* When a cluster head sends a message it uses the normal route, same as if clusters werent used. */
+      case TYPE_CONTENT_HEAD:
         if(router == -1) {
           dbg("RoutDetail", "Rout: No router.\n");
           if(!routerlessreported) {
@@ -311,6 +333,7 @@ implementation
       /* We need updated router information */
       switchrouter = FALSE;
       router = -1;
+      myClusterHead = -1;
     }
 
 
@@ -348,9 +371,9 @@ implementation
       }
 
       /* The router function choses wwhich one to use depending on the message was sent from head or */
-      routerFirst = myClusterHead;
+      //routerFirst = myClusterHead;
       /* Where to send if the message had already gone through a cluster head */
-      router = router;
+      //router = router;
     }
   }
 
