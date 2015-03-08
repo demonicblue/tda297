@@ -96,13 +96,20 @@ implementation
     }
   }
 
-  void selectHeads() {
-    if (random(100) < 35) {
+  void selectHeads(uint32_t roundcounter) {
+    /*if (random(100) < 50) {
+      isClusterHead = TRUE;
+      dbg("Cluster", "Cluster: I am a head\n");
+    } else {
+      isClusterHead = FALSE;
+    }*/
+    if(TOS_NODE_ID%5 == ((roundcounter/ROUNDS)/2)%5) {
       isClusterHead = TRUE;
       dbg("Cluster", "Cluster: I am a head\n");
     } else {
       isClusterHead = FALSE;
     }
+    
   }
 
 #define dbgMessageLine(channel,str,mess) dbg(channel,"%s{%d, %s, %d}\n", str, mess->from, messageTypeString(mess->type),mess->seq);
@@ -113,7 +120,7 @@ implementation
   void startnode() {
     battery = BATTERYSTART;
     call PeriodTimer.startPeriodic(PERIOD);
-    selectHeads();
+    selectHeads(0);
 
   }
 
@@ -313,7 +320,7 @@ implementation
     if(battery <= MAXDISTANCE)
       return;
 
-    if(isClusterHead)
+    if(isClusterHead && !isSink())
       message->type = TYPE_ANNOUNCEMENT_HEAD;
     else
       message->type = TYPE_ANNOUNCEMENT;
@@ -455,8 +462,8 @@ implementation
       if(isSink()) {
         dbg("Round","========== Round %d ==========\n",roundcounter/ROUNDS);
       }
-      if((roundcounter/3)%4 == 0)
-        selectHeads();
+      if((roundcounter/ROUNDS)%2 == 0)
+        selectHeads(roundcounter);
       sendAnnounce();
       break;
     case ROUND_CONTENT: /* Message time */
