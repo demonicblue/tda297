@@ -59,7 +59,7 @@ implementation
 
   /* ==================== HELPER FUNCTIONS ==================== */
 
-  /* Returns a random number between 0 and n-1 (both inclusive)	*/
+  /* Returns a random number between 0 and n-1 (both inclusive) */
   uint16_t random(uint16_t n) {
       /* Modulu is a simple but bad way to do it! */
       return (call Random.rand16()) % n;
@@ -200,16 +200,16 @@ implementation
       
       switch(message->type) {
       case TYPE_ANNOUNCEMENT:
-	dbgMessageLine("Announcement","Announcement: Sending message ",message);
-	break;
+  dbgMessageLine("Announcement","Announcement: Sending message ",message);
+  break;
       case TYPE_CONTENT:
-	dbgMessageLineInt("Content","Content: Sending message ",message," via ",receiver);
-	break;
+  dbgMessageLineInt("Content","Content: Sending message ",message," via ",receiver);
+  break;
       default:
-   	dbg("Error","ERROR: Unknown message type");
+    dbg("Error","ERROR: Unknown message type");
       }
     } else {
-   	dbg("Error","ERROR: MessageSend failed");
+    dbg("Error","ERROR: MessageSend failed");
     }
     batteryCheck();
   }
@@ -229,27 +229,27 @@ implementation
       dbg("RoutDetail", "Rout: Message will be sent.\n");
       switch(type) {
       case TYPE_ANNOUNCEMENT:
-	receiver = AM_BROADCAST_ADDR;
-	send = TRUE;
-	break;
+  receiver = AM_BROADCAST_ADDR;
+  send = TRUE;
+  break;
       case TYPE_CONTENT:
-	if(router == -1) {
-	  dbg("RoutDetail", "Rout: No router.\n");
-	  if(!routerlessreported) {
-	    dbg("Rout", "Rout: No router to send to\n");
-	    routerlessreported = TRUE;
-	  }
-	} else {
-	  receiver = router;
-	  send = TRUE;
-	}
-	break;
+  if(router == -1) {
+    dbg("RoutDetail", "Rout: No router.\n");
+    if(!routerlessreported) {
+      dbg("Rout", "Rout: No router to send to\n");
+      routerlessreported = TRUE;
+    }
+  } else {
+    receiver = router;
+    send = TRUE;
+  }
+  break;
       default:
-	dbg("Error", "ERROR: Unknown message type %d\n", type);
+  dbg("Error", "ERROR: Unknown message type %d\n", type);
       }
       if(send) {
-	*message = call RouterQueue.dequeue();
-	sendMessage(receiver);
+  *message = call RouterQueue.dequeue();
+  sendMessage(receiver);
       }
     }
   }
@@ -262,9 +262,9 @@ implementation
     if(message->type == TYPE_ANNOUNCEMENT) {
       rout_msg_t m = call RouterQueue.head();
       while(m.type != TYPE_ANNOUNCEMENT) {
-	m = call RouterQueue.dequeue();
-	call RouterQueue.enqueue(m);
-	m = call RouterQueue.head();
+  m = call RouterQueue.dequeue();
+  call RouterQueue.enqueue(m);
+  m = call RouterQueue.head();
       }
     }
     rout();
@@ -291,7 +291,16 @@ implementation
    * its router.
    */
   void announceReceive(rout_msg_t *mess) {
-    if(switchrouter) {
+    int16_t myDistance;
+    int16_t annDistance;
+    int16_t routerDistance;
+    int16_t currentCost;
+    int16_t annCost;
+    int16_t annNode;
+    int16_t currentNode;
+    int16_t routerFirst;
+
+   if(switchrouter) {
       /* We need updated router information */
       switchrouter = FALSE;
       router = -1;
@@ -299,15 +308,15 @@ implementation
 
     /* Run this if cluster head */
     if(isClusterHead) {
-      int16_t myDistance   =  distance(TOS_NODE_ID);
-      int16_t annDistance  =  distance(mess->from);
+      myDistance   =  distance(TOS_NODE_ID);
+      annDistance  =  distance(mess->from);
       
       if(router == -1 && myDistance > annDistance) {
         router = mess->from;
       } else if(router != -1)  {
-        int16_t routerDistance    = distance(router);
-        int16_t currentCost   = batteryRequiredForSend(router);
-        int16_t annCost     = batteryRequiredForSend(mess->from);
+        routerDistance    = distance(router);
+        currentCost   = batteryRequiredForSend(router);
+        annCost     = batteryRequiredForSend(mess->from);
         //if the distance of the current route is less than or equal to the current
         //route and the battery cost is less than or or equal, then chose the new
         // route.
@@ -322,8 +331,8 @@ implementation
         if(myClusterHead == -1) {
           myClusterHead = mess->from;
         } 
-        int16_t annNode     = distanceBetween(TOS_NODE_ID,   mess->from);
-        int16_t currentNode = distanceBetween(myClusterHead, mess->from);
+        annNode     = distanceBetween(TOS_NODE_ID,   mess->from);
+        currentNode = distanceBetween(myClusterHead, mess->from);
         if (annNode <= currentNode) {
           myClusterHead = mess->from;
         }
@@ -331,21 +340,21 @@ implementation
 
 
 
-      int16_t myDistance   = 	distance(TOS_NODE_ID);
-      int16_t annDistance  = 	distance(mess->from);
-  	
-    	if(router == -1 && myDistance > annDistance) {
-    		router = mess->from;
-    	} else if(router != -1)  {
-    		int16_t routerDistance		=	distance(router);
-    		int16_t currentCost		=	batteryRequiredForSend(router);
-    		int16_t annCost			=	batteryRequiredForSend(mess->from);
-    		//if the distance of the current route is less than or equal to the current
-    		//route and the battery cost is less than or or equal, then chose the new
-    		// route.
-    		if( routerDistance >= annDistance && annCost <= currentCost){
+      myDistance   =  distance(TOS_NODE_ID);
+      annDistance  =  distance(mess->from);
+    
+      if(router == -1 && myDistance > annDistance) {
+        router = mess->from;
+      } else if(router != -1)  {
+        routerDistance    = distance(router);
+        currentCost   = batteryRequiredForSend(router);
+        annCost     = batteryRequiredForSend(mess->from);
+        //if the distance of the current route is less than or equal to the current
+        //route and the battery cost is less than or or equal, then chose the new
+        // route.
+        if( routerDistance >= annDistance && annCost <= currentCost){
           router = mess->from;
-    		}
+        }
         /* If there exist a head that is close, it will always be chosen if if the battery is high */
         if(routerDistance >= annDistance && mess->type == TYPE_ANNOUNCEMENT_HEAD) {
           router = mess->from;
@@ -462,9 +471,9 @@ implementation
     case TYPE_CONTENT:
       dbgMessageLine("Content","Content: Received ",mess);
       if(isSink()) {
-	contentCollect(mess);
+  contentCollect(mess);
       } else {
-	contentReceive(mess);
+  contentReceive(mess);
       }
       break;
     default:
