@@ -350,7 +350,7 @@ implementation
     }
 
 
-    myDistance   =  distance(TOS_NODE_ID);
+      myDistance   =  distance(TOS_NODE_ID);
       annDistance  =  distance(mess->from);
       
       if(router == -1 && myDistance > annDistance) {
@@ -367,7 +367,7 @@ implementation
         }
       }
 
-    /* Run this if normal node, ie not clust head */
+    /* Run this if normal node, ie not cluster head */
     if(!isClusterHead) {
     
       /* Chooses the closest cluster head as it's cluster head */
@@ -376,8 +376,8 @@ implementation
           myClusterHead = mess->from;
           dbg("Cluster", "Cluster: Chose %d as my head\n", myClusterHead);
         } 
-        annNode     = distanceBetween(TOS_NODE_ID,   mess->from);
-        currentNode = distanceBetween(myClusterHead, mess->from);
+        annNode     = distanceBetween(TOS_NODE_ID, mess->from);
+        currentNode = distanceBetween(TOS_NODE_ID, myClusterHead);
         if (annNode <= currentNode) {
           myClusterHead = mess->from;
         }
